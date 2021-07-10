@@ -4,7 +4,7 @@
             <h3 class="text-2xl font-light leading-normal mb-4">New Item</h3>
 
             <!--start::New Item-->
-            <div>
+            <div class="">
                 <form @submit.prevent="submit">
                     <div class="shadow sm:rounded-md sm:overflow-hidden">
                         <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
