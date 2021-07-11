@@ -37,16 +37,20 @@ class CartController extends Controller
      */
     public function store(Request $request)
     {
-        /* $cart = session->get('cart'); */
-        $cart = Cookie::get('cart');
-        $product = Product::find($request->input('id'));
+        $cart = session('cart');
+        $data = $request->validate([
+            'barcode' => 'required|string'
+        ]);
+        $item = Product::query()->where('barcode', $data['barcode'])->first();
+
+        if(!$item) return redirect()->back();
 
         if(!$cart) {
             $cart = [
-                $product->id = [
-                    'name' => $product->name,
-                    'quantity' => $product->quantity,
-                    'price' => $product->price
+                $item->id => [
+                    'name' => $item->name,
+                    'quantity' => 1,
+                    'price' => $item->price
                 ]
             ];
 
@@ -56,8 +60,8 @@ class CartController extends Controller
             return redirect()->back();
         }
 
-        if(isset($cart[$product->id])) {
-            $cart[$product->id]['quantity']++;
+        if(isset($cart[$item->id])) {
+            $cart[$item->id]['quantity']++;
 
             /* session()->put('cart', $cart); */
             Cookie::queue('cart', $cart);
@@ -65,10 +69,10 @@ class CartController extends Controller
             return redirect()->back();
         }
 
-        $cart[$product->id] = [
-            'name' => $product->name,
-            'quantity' => $product->quantity,
-            'price' => $product->price
+        $cart[$item->id] = [
+            'name' => $item->name,
+            'quantity' => 1,
+            'price' => $item->price
         ];
 
         /* session()->put('cart', $cart); */
