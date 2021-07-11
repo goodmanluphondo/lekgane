@@ -5,6 +5,7 @@ namespace App\Http\Controllers\POS;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 
 class CartController extends Controller
 {
@@ -37,14 +38,19 @@ class CartController extends Controller
     public function store(Request $request)
     {
         $cart = session('cart');
-        $product = Product::find($request->input('id'));
+        $data = $request->validate([
+            'barcode' => 'required|string'
+        ]);
+        $item = Product::query()->where('barcode', $data['barcode'])->first();
+
+        if(!$item) return redirect()->back();
 
         if(!$cart) {
             $cart = [
-                $product->id = [
-                    'name' => $product->name,
-                    'quantity' => $product->quantity,
-                    'price' => $product->price
+                $item->id => [
+                    'name' => $item->name,
+                    'quantity' => 1,
+                    'price' => $item->price
                 ]
             ];
 
@@ -53,18 +59,18 @@ class CartController extends Controller
             return redirect()->back();
         }
 
-        if(isset($cart[$product->id])) {
-            $cart[$product->id]['quantity']++;
+        if(isset($cart[$item->id])) {
+            $cart[$item->id]['quantity']++;
 
             session()->put('cart', $cart);
 
             return redirect()->back();
         }
 
-        $cart[$product->id] = [
-            'name' => $product->name,
-            'quantity' => $product->quantity,
-            'price' => $product->price
+        $cart[$item->id] = [
+            'name' => $item->name,
+            'quantity' => 1,
+            'price' => $item->price
         ];
 
         session()->put('cart', $cart);

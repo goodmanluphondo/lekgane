@@ -4,9 +4,9 @@
             <div class="h-full flex-1 p-6 rounded-lg shadow-sm bg-white">
                 <!--start::Product Search-->
                 <div class="mb-8">
-                    <form @submit.prevent="search">
+                    <form @submit.prevent="submit">
                         <div class="w-full relative text-gray-400">
-                            <input type="text" v-model="term" class="w-full p-4 border-gray-200 rounded-xl" autofocus required>
+                            <input type="text" v-model="search.barcode" class="w-full p-4 border-gray-200 rounded-xl" autofocus required>
                             <button type="submit" class="absolute right-6 transform top-1/2 -translate-y-1/2 outline-none focus:outline-none">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -38,7 +38,7 @@
                             </div>
                             <div v-for="(product, index) in cart" :key="index" :class="{'bg-gray-50': index % 2 === 0, 'bg-white': index % 2 !== 0}" class="py-3 px-4 items-center grid grid-cols-8 gap-2">
                                 <dt class="col-span-4 text-sm text-gray-500">
-                                    {{product.name}}
+                                    {{product.name + ' (' + index + ')'}}
                                 </dt>
                                 <dd class="text-sm text-gray-500">
                                     {{currency(product.price)}}
@@ -55,6 +55,11 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                         </svg>
                                     </div> -->
+                                    <div @click="something" class="cursor-pointer">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
                                     <div @click="delete(product.id)" class="cursor-pointer">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -115,7 +120,7 @@
                         </div>
                     </div>
                     <div class="flex justify-center">
-                        <button type="submit" class="w-full p-4 rounded-xl text-sm uppercase text-gray-200 hover:text-gray-300 bg-gray-800 hover:bg-gray-600">Complete Sale ({{currency(total)}})</button>
+                        <inertia-link href="/sale" method="post" as="button" type="submit" class="w-full p-4 rounded-xl text-sm uppercase text-gray-200 hover:text-gray-300 bg-gray-800 hover:bg-gray-600">Complete Sale ({{currency(total)}})</inertia-link>
                     </div>
                 </div>
                 <!--end::Payment Method-->
@@ -128,54 +133,19 @@
 <script>
 import AuthenticatedLayout from "@/Layouts/Authenticated.vue";
 import Button from '@/Components/Button.vue';
+import paymentMethods from "./paymentMethods";
 
 export default {
     data() {
         return {
-            term: null,
+            term: '6009522300586',
+            search: this.$inertia.form({
+                barcode: '6009522300586',
+            }),
             payment: {
-                methods: [
-                    {
-                        name: 'Cash',
-                        info: 'Take cash and return change.',
-                        path: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z'
-                    },
-                    {
-                        name: 'Card',
-                        info: 'Print out merchant copy and store away.',
-                        path: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z'
-                    },
-                    {
-                        name: 'EFT',
-                        info: 'This option is currently unavailable.',
-                        path: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4'
-                    }
-                ],
+                methods: paymentMethods,
                 selected: null,
             },
-            products: [
-                {
-                    product_id: 1,
-                    name: '2l Coca-Cola No Sugar No Caffeine',
-                    price: 21.99,
-                    markup: 4.20,
-                    quantity: 2,
-                },
-                {
-                    product_id: 11,
-                    name: '500ml Coca-Cola No Sugar No Caffeine',
-                    price: 10.00,
-                    markup: 3.65,
-                    quantity: 1,
-                },
-                {
-                    product_id: 4,
-                    name: '300ml Coca-Cola No Sugar No Caffeine',
-                    price: 7.00,
-                    markup: 1.10,
-                    quantity: 3,
-                },
-            ],
             showFullSidebar: false,
         }
     },
@@ -188,15 +158,19 @@ export default {
         Button,
     },
     methods: {
-        search: function() {
-           axios.get('/ps?term=' + this.term).then((res) => {
-               this.term = null;
-               if(res.data && res.data.id) {
-                   this.$inertia.post('/cart', res.data);
-               }
-           });
+        submit() {
+            if(this.search.barcode) {
+                this.search.post('/cart', {
+                    onSuccess: () => this.search.reset()
+                });
+            } else {
+                console.log('there is no barcode to search.');
+            }
         },
-        currency: function(value) {
+        checkout() {
+            alert('ready to checkout.');
+        },
+        currency(value) {
             if (typeof value !== "number") {
                 return value;
             }
