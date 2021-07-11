@@ -1,7 +1,18 @@
 <template>
     <authenticated-layout>
-        <div class="h-full font-light p-6 rounded-lg bg-white">
-            <h3 class="text-4xl font-light leading-normal mb-8">Inventory</h3>
+        <div class="h-full font-light p-6 rounded-lg text-gray-500 bg-white">
+            <div class="md:flex">
+                <div class="flex-1">
+                    <h3 class="text-4xl font-light leading-normal mb-8">Inventory</h3>
+                </div>
+                <div class="flex-1 md:flex justify-end">
+                    <inertia-link href="/inventory/create" as="button" role="">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                    </inertia-link>
+                </div>
+            </div>
 
             <!--start::Inventory Table-->
             <div class="flex flex-col">
@@ -12,16 +23,16 @@
                                 <thead class="bg-gray-50">
                                     <tr>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Name
+                                        Name / Size
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Title
+                                        Barcode / SKU
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status
+                                        Quantity
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Role
+                                        Category
                                     </th>
                                     <th scope="col" class="relative px-6 py-3">
                                         <span class="sr-only">Edit</span>
@@ -29,37 +40,24 @@
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-                                    <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10">
-                                            <img class="h-10 w-10 rounded-full" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60" alt="">
-                                        </div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">
-                                            Jane Cooper
-                                            </div>
-                                            <div class="text-sm text-gray-500">
-                                            jane.cooper@example.com
-                                            </div>
-                                        </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">Regional Paradigm Technician</div>
-                                        <div class="text-sm text-gray-500">Optimization</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        Active
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        Admin
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                    </td>
+                                    <tr v-for="(product, index) in products" :key="index">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900" v-html="product.name"></div>
+                                            <div class="text-sm text-gray-500" v-html="product.size"></div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900" v-html="product.barcode"></div>
+                                            <div class="text-sm text-gray-500" v-html="product.sku.toUpperCase()"></div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800" v-html="product.quantity"></span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" v-html="product.category"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <inertia-link :href="'/inventory/' + product.id + '/edit'" class="text-indigo-600 hover:text-indigo-900">
+                                                Edit
+                                            </inertia-link>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
