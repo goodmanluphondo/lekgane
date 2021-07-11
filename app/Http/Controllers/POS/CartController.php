@@ -5,6 +5,7 @@ namespace App\Http\Controllers\POS;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 
 class CartController extends Controller
 {
@@ -36,7 +37,8 @@ class CartController extends Controller
      */
     public function store(Request $request)
     {
-        $cart = session('cart');
+        /* $cart = session->get('cart'); */
+        $cart = Cookie::get('cart');
         $product = Product::find($request->input('id'));
 
         if(!$cart) {
@@ -48,7 +50,8 @@ class CartController extends Controller
                 ]
             ];
 
-            session()->put('cart', $cart);
+            /* session()->put('cart', $cart); */
+            Cookie::queue('cart', $cart);
 
             return redirect()->back();
         }
@@ -56,7 +59,8 @@ class CartController extends Controller
         if(isset($cart[$product->id])) {
             $cart[$product->id]['quantity']++;
 
-            session()->put('cart', $cart);
+            /* session()->put('cart', $cart); */
+            Cookie::queue('cart', $cart);
 
             return redirect()->back();
         }
@@ -67,7 +71,8 @@ class CartController extends Controller
             'price' => $product->price
         ];
 
-        session()->put('cart', $cart);
+        /* session()->put('cart', $cart); */
+        Cookie::queue('cart', $cart);
 
         return redirect()->back();
     }

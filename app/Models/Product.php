@@ -20,4 +20,8 @@ class Product extends Model
         'price',
         'markup'
     ];
+
+    public function category() {
+        return $this->belongsTo(Category::class);
+    }
 }

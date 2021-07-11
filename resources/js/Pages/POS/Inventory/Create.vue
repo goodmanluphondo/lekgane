@@ -1,7 +1,24 @@
 <template>
     <authenticated-layout>
-        <div class="h-full font-light p-6 rounded-lg bg-white">
-            <h3 class="text-2xl font-light leading-normal mb-4">New Item</h3>
+        <div class="h-full font-light p-6 rounded-lg text-gray-500 bg-white">
+            <div class="flex items-center mb-4">
+                <div class="flex-1">
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-light leading-normal">New Item</h3>
+                    </div>
+                </div>
+                <div class="flex-1 flex items-center justify-end">
+                    <inertia-link href="/inventory" as="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </inertia-link>
+                </div>
+            </div>
+
+            <div>
+                <ValidationErrors />
+            </div>
 
             <!--start::New Item-->
             <div class="">
@@ -15,6 +32,20 @@
                                     </label>
                                     <div class="mt-1 flex rounded-md shadow-sm">
                                         <input v-model="product.barcode" type="text" name="company_website" id="company_website" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full rounded-md sm:text-sm border-gray-300" placeholder="Scan product barcode" autofocus>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-6">
+                                <div class="col-span-3 sm:col-span-2">
+                                    <label for="company_website" class="block text-sm font-medium text-gray-700">
+                                    Category
+                                    </label>
+                                    <div class="mt-1 flex rounded-md shadow-sm">
+                                        <select v-model="product.category_id" name="company_website" id="company_website" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full rounded-md sm:text-sm border-gray-300" placeholder="Scan product barcode">
+                                            <option value selected>Select Category</option>
+                                            <option v-for="(category, index) in categories" :key="index" :value="category.id" v-html="category.name"></option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -69,7 +100,18 @@
                                     Markup
                                     </label>
                                     <div class="mt-1 flex rounded-md shadow-sm">
-                                        <input v-model="product.markup" type="text" name="company_website" id="company_website" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300" placeholder="" readonly>
+                                        <input v-model="product.markup" type="text" name="company_website" id="company_website" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-6">
+                                <div class="col-span-3 sm:col-span-2">
+                                    <label for="company_website" class="block text-sm font-medium text-gray-700">
+                                    Quantity
+                                    </label>
+                                    <div class="mt-1 flex rounded-md shadow-sm">
+                                        <input v-model="product.quantity" type="text" name="company_website" id="company_website" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300">
                                     </div>
                                 </div>
                             </div>
@@ -89,38 +131,49 @@
 
 <script>
 import AuthenticatedLayout from "@/Layouts/Authenticated.vue";
+import ValidationErrors from "@/Components/ValidationErrors.vue"
 
 export default {
     data() {
         return {
+            errors: [],
             product: this.$inertia.form({
                 name: null,
                 size: null,
                 barcode: null,
+                category_id: this.categories[0].id ? this.categories[0].id : 0,
                 cost: 0,
                 price: 0,
-                markup: this.markup,
+                markup: 0,
+                quantity: 0,
             }),
         }
     },
+    created() {
+        console.log(this.$page.props.flash);
+    },
     props: {
         title: String,
+        categories: Object,
     },
     components: {
         AuthenticatedLayout,
+        ValidationErrors,
     },
     methods: {
         submit() {
             if(this.product.name && this.product.size && this.product.barcode && this.product.price && this.product.markup) {
-                console.log('submitted new product');
+                this.product.post('/inventory', {
+                    onSuccess: () => this.product.reset()
+                });
             } else {
-                console.log('uzama ukwenzani?')
+                console.log('something is not right.');
             }
         }
     },
     computed: {
         markup() {
-            return this.price - this.cost;
+            return 7;
         }
     }
 }

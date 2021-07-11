@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\POS;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Str;
 
 class InventoryController extends Controller
 {
@@ -26,7 +29,11 @@ class InventoryController extends Controller
      */
     public function create()
     {
-        return Inertia::render('POS/Inventory/Create', ['title' => 'New Inventory Item']);
+        $categories = Category::all();
+        return Inertia::render('POS/Inventory/Create', [
+            'title' => 'New Inventory Item',
+            'categories' => $categories,
+        ]);
     }
 
     /**
@@ -37,7 +44,20 @@ class InventoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $product = $request->validate([
+            'category_id' => 'required',
+            'barcode' => 'required|unique:products',
+            'name' => 'required',
+            'size' => 'required',
+            'quantity' => 'required',
+            'cost' => 'required',
+            'price' => 'required',
+            'markup' => 'required',
+        ]);
+        $product['sku'] = Str::random(7);
+        Product::create($product);
+
+        return redirect()->back()->with('message', 'Product added successfully.');
     }
 
     /**

@@ -132,7 +132,7 @@ import Button from '@/Components/Button.vue';
 export default {
     data() {
         return {
-            term: null,
+            term: '6009522300586',
             payment: {
                 methods: [
                     {
